@@ -14,11 +14,11 @@ function orderSynthesis(input) {
     utterThis.pitch = 1;
     utterThis.rate = 1;
     synth.speak(utterThis);
+    diagnosticPara.innerHTML += input + '<br>';
 }
 
 function orderSpeech() {
 
-    bg.style.backgroundColor = 'white';
     var recognition = new SpeechRecognition();
     recognition.lang = 'es-ES';
     recognition.interimResults = false;
@@ -29,29 +29,41 @@ function orderSpeech() {
     recognition.onresult = function (event) {
         var speechResult = event.results[0][0].transcript.toLowerCase();
         if (speechResult.includes("paco")) {
-            bg.style.backgroundColor = 'cyan';
             if (speechResult.includes("música")) {
                 var artist = speechResult.substr(speechResult.indexOf('música de ') + 10);
-                orderSynthesis('Mostrando vídeos de ' + artist);
+                diagnosticPara.innerHTML += speechResult + '<br>';
+                orderSynthesis('Mostrando vídeos de ' + artist + '.');
                 var newtab = window.open('https://www.youtube.com/results?search_query=' + artist, '_blank');
             } else if (speechResult.includes("busca ")) {
                 var search = speechResult.substr(speechResult.indexOf('busca ') + 6);
-                orderSynthesis('Buscando ' + search);
+                diagnosticPara.innerHTML += speechResult + '<br>';
+                orderSynthesis('Buscando ' + search + '.');
                 var newtab = window.open('https://www.google.es/search?q=' + search, '_blank');
             };
-        }
-        diagnosticPara.textContent = speechResult;
-    }
+        } else {
+            if (speechResult.includes("mi nombre es")) {
+                var user = speechResult.substr(speechResult.indexOf('mi nombre es ') + 13);
+                diagnosticPara.innerHTML += speechResult + '<br>';
+                orderSynthesis('Hola ' + user + ', dime que quieres que busque.');
+            } else if (speechResult.includes("me llamo")) {
+                var user = speechResult.substr(speechResult.indexOf('me llamo ') + 9);
+                diagnosticPara.innerHTML += speechResult + '<br>';
+                orderSynthesis('Hola ' + user + ', dime que quieres que busque.');
+            } else {
+                diagnosticPara.innerHTML += speechResult + '<br>';   
+            };
+        };
+    };
 
     recognition.onspeechend = function () {
         recognition.stop();
         orderSpeech();
-    }
+    };
 
     recognition.onerror = function (event) {
         orderSpeech();
-    }
+    };
 
-}
-orderSynthesis('Hola Armando, ¿qué tal?');
+};
+orderSynthesis('Hola, mi nombre es Paco, ¿qué tal, cómo te llamas?');
 orderSpeech();
